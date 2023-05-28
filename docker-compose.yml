@@ -1,0 +1,30 @@
+version: '3.3'
+services:
+  rulib-caching:   
+    image: redis:6.0
+    container_name:  rulib-caching
+    restart: always    
+    ports:
+      - 6222:6379
+    volumes:
+      - ./redis_data:/data
+      - ./redis_config/redis.conf:/redis.conf
+    command: redis-server /redis.conf --requirepass  admin-rulib78589-caching --appendonly yes
+
+  rulib-api:   
+    image: rulib-api
+    container_name: rulib-api
+    restart: always  
+    depends_on:
+      - rulib-caching  
+    ports:
+      - 7222:3000
+    volumes:
+      - ./:/app
+    command: reflex -r "\.go$$" -s -- sh -c "go run ./"
+    #command: go run main.go
+
+networks:
+  default:
+    external: 
+      name: backend-lib-services
