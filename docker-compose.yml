@@ -3,7 +3,7 @@ services:
   rulib-caching:   
     image: redis:6.0
     container_name:  rulib-caching
-    restart: always    
+    restart: always  
     ports:
       - 6222:6379
     volumes:

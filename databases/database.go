@@ -6,6 +6,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	_ "github.com/godror/godror"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
 )
 
@@ -21,6 +22,8 @@ func (c *connection) OracleInit() *sqlx.DB {
 	if err != nil {
 		panic(err)
 	}
+	db.SetMaxOpenConns(3)
+	db.SetMaxIdleConns(3)
 	return db
 }
 
@@ -45,4 +48,19 @@ func oracleConnection() (*sqlx.DB, error) {
 
 	return sqlx.Open(driver, dns)
 
+}
+
+func (c *connection) PostgresInit() *sqlx.DB {
+
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s", viper.GetString("postgres.host"), viper.GetInt("postgres.port"), viper.GetString("postgres.user"), viper.GetString("postgres.password"), viper.GetString("postgres.dbname"))
+
+	db, err := sqlx.Connect("postgres", dsn)
+
+	if err != nil {
+		panic("failed to connect database" + err.Error())
+	}
+	db.SetMaxOpenConns(3)
+	db.SetMaxIdleConns(3)
+
+	return db
 }
